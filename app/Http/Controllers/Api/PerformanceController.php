@@ -33,7 +33,7 @@ class PerformanceController extends Controller
             WITH target_summary AS (
                 SELECT 
                     ttf.id_flp,
-                    tblflp.nama,
+                    COALESCE(tblflp.nama, 'FLP ' || ttf.id_flp) as nama,
                     SUM(ttf.target) as total_target
                 FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                 LEFT JOIN \"H1_DOS\".\"tblflp\" ON tblflp.no_id = ttf.id_flp
@@ -76,7 +76,7 @@ class PerformanceController extends Controller
         $myRank = null;
         $leaderboard = [];
 
-        foreach ($rankings as $index => $rank) {
+        foreach ($rankings as $rank) {
             $rankData = [
                 'rank' => (int)$rank->rank,
                 'id_flp' => $rank->id_flp,
@@ -98,7 +98,7 @@ class PerformanceController extends Controller
                 WITH target_summary AS (
                     SELECT 
                         ttf.id_flp,
-                        tblflp.nama,
+                        COALESCE(tblflp.nama, 'FLP ' || ttf.id_flp) as nama,
                         SUM(ttf.target) as total_target
                     FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                     LEFT JOIN \"H1_DOS\".\"tblflp\" ON tblflp.no_id = ttf.id_flp
