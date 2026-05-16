@@ -11,10 +11,12 @@ class FlpResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'id_flp' => $this->id_flp,
+            'no_id' => $this->no_id,
             'nama' => $this->nama,
-            'is_active' => $this->is_active,
-            'last_login' => $this->last_login?->format('Y-m-d H:i:s'),
+            'kd_dlr' => $this->kd_dlr,
+            'jabatan' => $this->jabatan,
+            'team' => $this->team,
+            'foto' => $this->foto ? url($this->foto) : null,
         ];
     }
 }

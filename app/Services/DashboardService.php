@@ -9,22 +9,22 @@ class DashboardService
 {
     public function getDealerInfo($idFlp)
     {
-        $result = DB::connection('pgsql_nms')
-            ->table('H1_DOS.tb_karyawan_dealer')
-            ->where('id_flp', $idFlp)
+        $flp = DB::connection('pgsql_nms')
+            ->table('H1_DOS.tblflp')
+            ->where('no_id', $idFlp)
             ->first();
 
-        if (!$result) {
+        if (!$flp) {
             return null;
         }
 
         $dealer = DB::connection('pgsql_nms')
             ->table('H1_DOS.masterdealer')
-            ->where('KodeDealer', $result->kode_dealer)
+            ->where('KodeDealer', $flp->kd_dlr)
             ->first();
 
         return [
-            'dealer_code' => $result->kode_dealer,
+            'dealer_code' => $flp->kd_dlr,
             'dealer_name' => $dealer->NamaDealer ?? 'Unknown',
         ];
     }

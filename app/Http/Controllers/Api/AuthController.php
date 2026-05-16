@@ -20,9 +20,13 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email atau password salah'],
-            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau password salah',
+                'errors' => [
+                    'email' => ['Email atau password salah'],
+                ],
+            ], 401);
         }
 
         $flp = $user->flp;
@@ -34,18 +38,11 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!$flp->is_active) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akun FLP tidak aktif',
-            ], 403);
-        }
-
         $token = $user->createToken($request->device_id)->plainTextToken;
 
         FlpDevice::updateOrCreate(
             [
-                'id_flp' => $flp->id_flp,
+                'id_flp' => $flp->no_id,
                 'device_id' => $request->device_id,
             ],
             [
@@ -55,8 +52,6 @@ class AuthController extends Controller
                 'last_active' => now(),
             ]
         );
-
-        $flp->update(['last_login' => now()]);
 
         return response()->json([
             'success' => true,
@@ -85,7 +80,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         if ($user->flp) {
-            FlpDevice::where('id_flp', $user->flp->id_flp)->delete();
+            FlpDevice::where('id_flp', $user->flp->no_id)->delete();
         }
 
         return response()->json([
@@ -119,7 +114,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $devices = FlpDevice::where('id_flp', $user->flp->id_flp)
+        $devices = FlpDevice::where('id_flp', $user->flp->no_id)
             ->orderBy('last_active', 'desc')
             ->get()
             ->map(function ($device) {

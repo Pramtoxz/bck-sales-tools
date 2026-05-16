@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class LoginRequest extends FormRequest
+class UpdateProspekRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,21 +16,24 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email',
-            'password' => 'required|string',
-            'device_id' => 'required|string|max:255',
-            'device_name' => 'nullable|string|max:100',
-            'device_type' => 'nullable|string|in:android,ios',
+            'tanggal' => 'sometimes|date',
+            'nama_customer' => 'sometimes|string|max:255',
+            'no_hp' => 'sometimes|string|max:20',
+            'kode_type' => 'sometimes|string|max:10',
+            'kode_warna' => 'sometimes|string|max:10',
+            'rencana_pembayaran' => 'sometimes|in:1,2',
+            'tipe_customer' => 'sometimes|string|max:10',
+            'alamat_prospect' => 'sometimes|string',
+            'alamat_kantor_prospect' => 'nullable|string',
+            'source' => 'sometimes|string',
+            'keterangan' => 'nullable|string',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'password.required' => 'Password wajib diisi',
-            'device_id.required' => 'Device ID wajib diisi',
+            'rencana_pembayaran.in' => 'Rencana pembayaran harus Cash (1) atau Credit (2)',
         ];
     }
 

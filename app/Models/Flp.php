@@ -10,30 +10,34 @@ class Flp extends Model
     use HasFactory;
 
     protected $connection = 'pgsql_nms';
-    protected $table = 'flp';
+    protected $table = 'H1_DOS.tblflp';
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id_flp',
+        'no_id',
         'nama',
-        'token',
-        'user_id',
-        'last_login',
-        'is_active',
+        'kd_dlr',
+        'jabatan',
+        'target',
+        'kode_jabatan',
+        'id_level',
+        'team',
+        'bulan',
+        'tahun',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'last_login' => 'datetime',
+        'target' => 'integer',
+        'id_level' => 'integer',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'no_id', 'kd_kariawan');
     }
 
     public function devices()
     {
-        return $this->hasMany(FlpDevice::class, 'id_flp', 'id_flp');
+        return $this->hasMany(FlpDevice::class, 'id_flp', 'no_id');
     }
 }
