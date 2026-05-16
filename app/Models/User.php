@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $connection = 'pgsql_nms';
 
@@ -39,5 +38,33 @@ class User extends Authenticatable
     public function flp()
     {
         return $this->hasOne(Flp::class, 'id_flp', 'kd_kariawan');
+    }
+
+    public function createToken($name)
+    {
+        $token = bin2hex(random_bytes(32));
+        
+        $accessToken = PersonalAccessToken::create([
+            'tokenable_type' => self::class,
+            'tokenable_id' => $this->id,
+            'name' => $name,
+            'token' => hash('sha256', $token),
+            'abilities' => ['*'],
+        ]);
+
+        return (object) [
+            'accessToken' => $accessToken,
+            'plainTextToken' => $accessToken->id . '|' . $token,
+        ];
+    }
+
+    public function tokens()
+    {
+        return $this->morphMany(PersonalAccessToken::class, 'tokenable');
+    }
+
+    public function currentAccessToken()
+    {
+        return $this->accessToken ?? null;
     }
 }
