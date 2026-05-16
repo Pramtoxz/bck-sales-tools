@@ -25,6 +25,10 @@ class PerformanceController extends Controller
         $endDate = $request->query('end_date', date('Y-m-t'));
         $limit = $request->query('limit', 20);
 
+        $bulan = date('m', strtotime($startDate));
+        $tahun = date('Y', strtotime($startDate));
+        $bulanTahunFormat = sprintf('%02d/01/%d', $bulan, $tahun);
+
         $rankings = DB::connection('pgsql_nms')->select("
             WITH target_summary AS (
                 SELECT 
@@ -33,8 +37,7 @@ class PerformanceController extends Controller
                     SUM(ttf.target) as total_target
                 FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                 LEFT JOIN \"H1_DOS\".\"tblflp\" ON tblflp.no_id = ttf.id_flp
-                WHERE EXTRACT(MONTH FROM TO_DATE(ttf.bulan_tahun, 'MM/DD/YYYY')) = EXTRACT(MONTH FROM ?::date)
-                  AND EXTRACT(YEAR FROM TO_DATE(ttf.bulan_tahun, 'MM/DD/YYYY')) = EXTRACT(YEAR FROM ?::date)
+                WHERE ttf.bulan_tahun = ?
                 GROUP BY ttf.id_flp, tblflp.nama
             ),
             actual_summary AS (
@@ -65,9 +68,10 @@ class PerformanceController extends Controller
                 END as persentase
             FROM target_summary ts
             LEFT JOIN actual_summary acs ON acs.id_flp = ts.id_flp
+            WHERE ts.total_target > 0
             ORDER BY persentase DESC
             LIMIT ?
-        ", [$startDate, $startDate, $startDate, $endDate, $limit]);
+        ", [$bulanTahunFormat, $startDate, $endDate, $limit]);
 
         $myRank = null;
         $leaderboard = [];
@@ -98,8 +102,7 @@ class PerformanceController extends Controller
                         SUM(ttf.target) as total_target
                     FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                     LEFT JOIN \"H1_DOS\".\"tblflp\" ON tblflp.no_id = ttf.id_flp
-                    WHERE EXTRACT(MONTH FROM TO_DATE(ttf.bulan_tahun, 'MM/DD/YYYY')) = EXTRACT(MONTH FROM ?::date)
-                      AND EXTRACT(YEAR FROM TO_DATE(ttf.bulan_tahun, 'MM/DD/YYYY')) = EXTRACT(YEAR FROM ?::date)
+                    WHERE ttf.bulan_tahun = ?
                     GROUP BY ttf.id_flp, tblflp.nama
                 ),
                 actual_summary AS (
@@ -131,9 +134,10 @@ class PerformanceController extends Controller
                         END as persentase
                     FROM target_summary ts
                     LEFT JOIN actual_summary acs ON acs.id_flp = ts.id_flp
+                    WHERE ts.total_target > 0
                 )
                 SELECT * FROM ranked_flp WHERE id_flp = ?
-            ", [$startDate, $startDate, $startDate, $endDate, $flp->no_id]);
+            ", [$bulanTahunFormat, $startDate, $endDate, $flp->no_id]);
 
             if (!empty($myRankQuery)) {
                 $rank = $myRankQuery[0];
