@@ -11,7 +11,7 @@ class FlpResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'no_id' => $this->no_id,
+            'id_flp' => $this->id_flp,
             'nama' => $this->nama,
             'kd_dlr' => $this->kd_dlr,
             'jabatan' => $this->jabatan,

@@ -37,7 +37,7 @@ class User extends Authenticatable
 
     public function flp()
     {
-        return $this->hasOne(Flp::class, 'no_id', 'kd_kariawan');
+        return $this->hasOne(Flp::class, 'id_flp', 'kd_kariawan');
     }
 
     public function createToken($name)

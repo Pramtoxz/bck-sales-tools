@@ -10,8 +10,8 @@ class DashboardService
     public function getDealerInfo($idFlp)
     {
         $flp = DB::connection('pgsql_nms')
-            ->table('H1_DOS.tblflp')
-            ->where('no_id', $idFlp)
+            ->table('public.flp')
+            ->where('id_flp', $idFlp)
             ->first();
 
         if (!$flp) {

@@ -42,7 +42,7 @@ class AuthController extends Controller
 
         FlpDevice::updateOrCreate(
             [
-                'id_flp' => $flp->no_id,
+                'id_flp' => $flp->id_flp,
                 'device_id' => $request->device_id,
             ],
             [
@@ -80,7 +80,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         if ($user->flp) {
-            FlpDevice::where('id_flp', $user->flp->no_id)->delete();
+            FlpDevice::where('id_flp', $user->flp->id_flp)->delete();
         }
 
         return response()->json([
@@ -114,7 +114,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $devices = FlpDevice::where('id_flp', $user->flp->no_id)
+        $devices = FlpDevice::where('id_flp', $user->flp->id_flp)
             ->orderBy('last_active', 'desc')
             ->get()
             ->map(function ($device) {

@@ -52,7 +52,7 @@ class ActualSpkController extends Controller
             ->leftJoin('H1_DOS.mastercustomer', 'mastercustomer.IDCustomer', '=', 'spk.IDCustomer')
             ->leftJoin('H1_DOS.SpkDetail', 'SpkDetail.IdSPK', '=', 'spk.IDSpk')
             ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'spk.IDJenisPembayaran')
-            ->where('spk.id_flp', $flp->no_id)
+            ->where('spk.id_flp', $flp->id_flp)
             ->orderBy('spk.TglSPK', 'desc');
 
         if ($bulan) {

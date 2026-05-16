@@ -24,7 +24,7 @@ class TargetProspekController extends Controller
         $bulan = $request->query('bulan', date('n'));
         $tahun = $request->query('tahun', date('Y'));
 
-        $data = TargetProspek::getTargetProspekComparison($flp->no_id, $bulan, $tahun);
+        $data = TargetProspek::getTargetProspekComparison($flp->id_flp, $bulan, $tahun);
 
         return response()->json([
             'success' => true,

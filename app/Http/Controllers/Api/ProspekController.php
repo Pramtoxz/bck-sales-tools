@@ -51,7 +51,7 @@ class ProspekController extends Controller
             ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'guestbook.RencanaPembayaran')
             ->leftJoin('Master_Schema.SetupTipeCustomer', 'SetupTipeCustomer.id_tipe', '=', 'guestbook.TipeCustomer')
             ->leftJoin('Master_Schema.master_source_leads', 'master_source_leads.id', '=', 'guestbook.Source')
-            ->where('guestbook.id_flp', $flp->no_id)
+            ->where('guestbook.id_flp', $flp->id_flp)
             ->orderBy('guestbook.Tanggal', 'desc');
 
         if ($bulan) {
@@ -127,7 +127,7 @@ class ProspekController extends Controller
             'AlamatKantorProspect' => $validated['alamat_kantor_prospect'] ?? null,
             'Source' => $validated['source'],
             'Keterangan' => $validated['keterangan'] ?? null,
-            'id_flp' => $flp->no_id,
+            'id_flp' => $flp->id_flp,
             'NamaKariawan' => $flp->nama,
             'fk_dealer' => $flp->kd_dlr,
             'Status_guestbook' => 'f',
@@ -156,7 +156,7 @@ class ProspekController extends Controller
         }
 
         $prospek = GuestBook::where('IDGuestBook', $id)
-            ->where('id_flp', $flp->no_id)
+            ->where('id_flp', $flp->id_flp)
             ->first();
 
         if (!$prospek) {
@@ -209,7 +209,7 @@ class ProspekController extends Controller
         }
 
         $prospek = GuestBook::where('IDGuestBook', $id)
-            ->where('id_flp', $flp->no_id)
+            ->where('id_flp', $flp->id_flp)
             ->first();
 
         if (!$prospek) {

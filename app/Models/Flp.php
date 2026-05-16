@@ -10,11 +10,13 @@ class Flp extends Model
     use HasFactory;
 
     protected $connection = 'pgsql_nms';
-    protected $table = 'H1_DOS.tblflp';
-    protected $primaryKey = 'id';
+    protected $table = 'public.flp';
+    protected $primaryKey = 'id_flp';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'no_id',
+        'id_flp',
         'nama',
         'kd_dlr',
         'jabatan',
@@ -33,11 +35,11 @@ class Flp extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'no_id', 'kd_kariawan');
+        return $this->belongsTo(User::class, 'id_flp', 'kd_kariawan');
     }
 
     public function devices()
     {
-        return $this->hasMany(FlpDevice::class, 'id_flp', 'no_id');
+        return $this->hasMany(FlpDevice::class, 'id_flp', 'id_flp');
     }
 }

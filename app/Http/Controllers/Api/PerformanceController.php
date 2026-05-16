@@ -33,19 +33,19 @@ class PerformanceController extends Controller
             'start_date' => $startDate,
             'end_date' => $endDate,
             'bulan_tahun_format' => $bulanTahunFormat,
-            'flp_no_id' => $flp->no_id,
+            'flp_id_flp' => $flp->id_flp,
         ]);
 
         $rankings = DB::connection('pgsql_nms')->select("
             WITH target_summary AS (
                 SELECT 
                     ttf.id_flp,
-                    COALESCE(tblflp.nama, 'FLP ' || ttf.id_flp) as nama,
+                    COALESCE(flp.nama, 'FLP ' || ttf.id_flp) as nama,
                     SUM(ttf.target) as total_target
                 FROM \"H1_DOS\".\"tbl_target_flp\" ttf
-                LEFT JOIN \"H1_DOS\".\"tblflp\" ON tblflp.no_id = ttf.id_flp
+                LEFT JOIN \"public\".\"flp\" ON flp.id_flp = ttf.id_flp
                 WHERE ttf.bulan_tahun = ?
-                GROUP BY ttf.id_flp, tblflp.nama
+                GROUP BY ttf.id_flp, flp.nama
             ),
             actual_summary AS (
                 SELECT 
@@ -98,7 +98,7 @@ class PerformanceController extends Controller
                 'persentase' => (float)$rank->persentase,
             ];
 
-            if ($rank->id_flp === $flp->no_id) {
+            if ($rank->id_flp === $flp->id_flp) {
                 $myRank = $rankData;
             }
 
@@ -110,12 +110,12 @@ class PerformanceController extends Controller
                 WITH target_summary AS (
                     SELECT 
                         ttf.id_flp,
-                        COALESCE(tblflp.nama, 'FLP ' || ttf.id_flp) as nama,
+                        COALESCE(flp.nama, 'FLP ' || ttf.id_flp) as nama,
                         SUM(ttf.target) as total_target
                     FROM \"H1_DOS\".\"tbl_target_flp\" ttf
-                    LEFT JOIN \"H1_DOS\".\"tblflp\" ON tblflp.no_id = ttf.id_flp
+                    LEFT JOIN \"public\".\"flp\" ON flp.id_flp = ttf.id_flp
                     WHERE ttf.bulan_tahun = ?
-                    GROUP BY ttf.id_flp, tblflp.nama
+                    GROUP BY ttf.id_flp, flp.nama
                 ),
                 actual_summary AS (
                     SELECT 
@@ -149,7 +149,7 @@ class PerformanceController extends Controller
                     WHERE ts.total_target > 0
                 )
                 SELECT * FROM ranked_flp WHERE id_flp = ?
-            ", [$bulanTahunFormat, $startDate, $endDate, $flp->no_id]);
+            ", [$bulanTahunFormat, $startDate, $endDate, $flp->id_flp]);
 
             if (!empty($myRankQuery)) {
                 $rank = $myRankQuery[0];

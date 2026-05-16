@@ -28,7 +28,7 @@ class FlpDevice extends Model
 
     public function flp()
     {
-        return $this->belongsTo(Flp::class, 'id_flp', 'no_id');
+        return $this->belongsTo(Flp::class, 'id_flp', 'id_flp');
     }
 
     public function user()

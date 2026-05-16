@@ -52,7 +52,7 @@ class ActualSalesController extends Controller
             ->leftJoin('H1_DOS.mastercustomer', 'mastercustomer.IDCustomer', '=', 'spk.IDCustomer')
             ->leftJoin('H1_DOS.SpkDetail', 'SpkDetail.IdSPK', '=', 'spk.IDSpk')
             ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'spk.IDJenisPembayaran')
-            ->where('spk.id_flp', $flp->no_id)
+            ->where('spk.id_flp', $flp->id_flp)
             ->whereRaw('EXTRACT(MONTH FROM fp."TglPenjualan") = ?', [$bulan])
             ->whereRaw('EXTRACT(YEAR FROM fp."TglPenjualan") = ?', [$tahun])
             ->orderBy('fp.TglPenjualan', 'desc');
@@ -61,7 +61,7 @@ class ActualSalesController extends Controller
 
         $targetData = DB::connection('pgsql_nms')
             ->table('H1_DOS.tbl_target_flp')
-            ->where('id_flp', $flp->no_id)
+            ->where('id_flp', $flp->id_flp)
             ->whereRaw("TO_DATE(bulan_tahun, 'MM/DD/YYYY') = TO_DATE(?, 'MM/DD/YYYY')", [
                 sprintf('%02d/01/%d', $bulan, $tahun)
             ])
@@ -72,7 +72,7 @@ class ActualSalesController extends Controller
             ->table('H1_DOS.fakturpenjualan as fp')
             ->join('H1_DOS.salesorder as so', 'so.IDSO', '=', 'fp.IDSO')
             ->join('H1_DOS.spk', 'spk.IDSpk', '=', 'so.IDSPK')
-            ->where('spk.id_flp', $flp->no_id)
+            ->where('spk.id_flp', $flp->id_flp)
             ->whereRaw('EXTRACT(MONTH FROM fp."TglPenjualan") = ?', [$bulan])
             ->whereRaw('EXTRACT(YEAR FROM fp."TglPenjualan") = ?', [$tahun])
             ->selectRaw('COUNT(*) as total_actual')

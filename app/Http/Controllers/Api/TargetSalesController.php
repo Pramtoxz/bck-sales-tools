@@ -26,7 +26,7 @@ class TargetSalesController extends Controller
 
         $targetData = TargetFlp::getTargetSalesComparison(
             $flp->kd_dlr,
-            $flp->no_id,
+            $flp->id_flp,
             $startDate,
             $endDate
         );
@@ -68,7 +68,7 @@ class TargetSalesController extends Controller
                     'end' => $endDate,
                 ],
                 'flp' => [
-                    'no_id' => $flp->no_id,
+                    'id_flp' => $flp->id_flp,
                     'nama' => $flp->nama,
                 ],
                 'items' => $data,

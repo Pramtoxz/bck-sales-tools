@@ -106,7 +106,7 @@ class ProfileController extends Controller
             }
 
             $file = $request->file('photo');
-            $filename = 'flp_' . $flp->no_id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = 'flp_' . $flp->id_flp . '_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move($publicPath, $filename);
             
             $path = 'photos/flp/' . $filename;

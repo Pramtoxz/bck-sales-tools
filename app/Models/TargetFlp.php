@@ -56,7 +56,7 @@ class TargetFlp extends Model
 
         $targetQuery = DB::connection('pgsql_nms')
             ->table('H1_DOS.tbl_target_flp as t')
-            ->join('H1_DOS.tblflp as f', 't.id_flp', '=', 'f.no_id')
+            ->join('public.flp as f', 't.id_flp', '=', 'f.id_flp')
             ->select([
                 't.id',
                 't.id_flp',
