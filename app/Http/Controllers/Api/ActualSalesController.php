@@ -82,16 +82,21 @@ class ActualSalesController extends Controller
         $actual = (int) $actualData->total_actual;
         $persentase = $target > 0 ? round(($actual / $target) * 100, 2) : 0;
 
+        $summary = [
+            'bulan' => (int) $bulan,
+            'tahun' => (int) $tahun,
+            'actual' => $actual,
+        ];
+
+        if ($target > 0) {
+            $summary['target'] = $target;
+            $summary['persentase'] = $persentase;
+        }
+
         return response()->json([
             'success' => true,
             'data' => $sales->items(),
-            'summary' => [
-                'bulan' => (int) $bulan,
-                'tahun' => (int) $tahun,
-                'target' => $target,
-                'actual' => $actual,
-                'persentase' => $persentase,
-            ],
+            'summary' => $summary,
             'meta' => [
                 'current_page' => $sales->currentPage(),
                 'last_page' => $sales->lastPage(),
