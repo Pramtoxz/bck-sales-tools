@@ -80,6 +80,58 @@ class ProspekController extends Controller
         ]);
     }
 
+    public function show(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $prospek = DB::connection('pgsql_nms')
+            ->table('H1_DOS.guestbook')
+            ->select(
+                'guestbook.IDGuestBook',
+                'guestbook.Tanggal',
+                'guestbook.NamaCustomer',
+                'guestbook.NoHp',
+                'guestbook.KodeType',
+                'guestbook.KodeWarna',
+                'guestbook.DeskripsiWarnaMotor',
+                'setupjenispembayaran.JenisPembayaran as rencana_pembayaran',
+                'SetupTipeCustomer.tipe_customer',
+                'guestbook.AlamatProspect',
+                'guestbook.AlamatKantorProspect',
+                'master_source_leads.deskripsi as source',
+                'guestbook.Keterangan',
+                'guestbook.Status_guestbook',
+                'guestbook.created_at',
+                'guestbook.updated_at'
+            )
+            ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'guestbook.RencanaPembayaran')
+            ->leftJoin('Master_Schema.SetupTipeCustomer', 'SetupTipeCustomer.id_tipe', '=', 'guestbook.TipeCustomer')
+            ->leftJoin('Master_Schema.master_source_leads', 'master_source_leads.id', '=', 'guestbook.Source')
+            ->where('guestbook.IDGuestBook', $id)
+            ->where('guestbook.id_flp', $flp->id_flp)
+            ->first();
+
+        if (!$prospek) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Prospek tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $prospek,
+        ]);
+    }
+
     public function store(StoreProspekRequest $request): JsonResponse
     {
         $user = $request->user();
