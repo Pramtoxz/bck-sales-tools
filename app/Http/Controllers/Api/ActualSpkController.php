@@ -80,4 +80,62 @@ class ActualSpkController extends Controller
             ],
         ]);
     }
+
+    public function show(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $spk = DB::connection('pgsql_nms')
+            ->table('H1_DOS.spk')
+            ->select(
+                'spk.IDSpk',
+                'spk.TglSPK',
+                'spk.IDCustomer',
+                'mastercustomer.NamaCustomer',
+                'mastercustomer.NoHp',
+                'mastercustomer.Alamat',
+                'mastercustomer.AlamatKantor',
+                'spk.IDJenisPembayaran',
+                'setupjenispembayaran.JenisPembayaran',
+                'spk.NamaLeasing',
+                'SpkDetail.fk_tipe',
+                'SpkDetail.fk_warna',
+                'SpkDetail.DescMotorMKT',
+                'SpkDetail.DescWarnaMotor',
+                'SpkDetail.harga_unit',
+                'SpkDetail.diskon_unit',
+                'spk.DP',
+                'spk.Cicilan',
+                'spk.Tenor',
+                'spk.status_spk',
+                'spk.created_at',
+                'spk.updated_at'
+            )
+            ->leftJoin('H1_DOS.mastercustomer', 'mastercustomer.IDCustomer', '=', 'spk.IDCustomer')
+            ->leftJoin('H1_DOS.SpkDetail', 'SpkDetail.IdSPK', '=', 'spk.IDSpk')
+            ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'spk.IDJenisPembayaran')
+            ->where('spk.IDSpk', $id)
+            ->where('spk.id_flp', $flp->id_flp)
+            ->first();
+
+        if (!$spk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'SPK tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $spk,
+        ]);
+    }
 }
