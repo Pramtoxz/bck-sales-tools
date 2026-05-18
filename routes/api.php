@@ -42,9 +42,9 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/indent', [IndentController::class, 'index']);
     Route::get('/target-prospek', [TargetProspekController::class, 'index']);
     Route::get('/prospek', [ProspekController::class, 'index']);
-    Route::get('/prospek/{id}', [ProspekController::class, 'show']);
+    Route::get('/prospek/{id}', [ProspekController::class, 'show'])->where('id', '.*');
     Route::get('/actual-spk', [ActualSpkController::class, 'index']);
-    Route::get('/actual-spk/{id}', [ActualSpkController::class, 'show']);
+    Route::get('/actual-spk/{id}', [ActualSpkController::class, 'show'])->where('id', '.*');
     Route::get('/actual-sales', [ActualSalesController::class, 'index']);
     Route::get('/performance', [PerformanceController::class, 'index']);
     Route::get('/profile', [ProfileController::class, 'show']);
@@ -53,8 +53,8 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
 
 Route::middleware(['auth:api', 'throttle:write'])->group(function () {
     Route::post('/prospek', [ProspekController::class, 'store']);
-    Route::put('/prospek/{id}', [ProspekController::class, 'update']);
-    Route::delete('/prospek/{id}', [ProspekController::class, 'destroy']);
+    Route::put('/prospek/{id}', [ProspekController::class, 'update'])->where('id', '.*');
+    Route::delete('/prospek/{id}', [ProspekController::class, 'destroy'])->where('id', '.*');
     Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
 });
 
