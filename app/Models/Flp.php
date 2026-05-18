@@ -18,7 +18,7 @@ class Flp extends Model
     protected $fillable = [
         'id_flp',
         'nama',
-        'kd_dlr',
+        'kode_dealer',
         'jabatan',
         'target',
         'kode_jabatan',

@@ -36,7 +36,7 @@ class StockController extends Controller
                 GROUP BY su.fk_item, mgm.\"DeskripsiType\", w.warna
                 ORDER BY mgm.\"DeskripsiType\", su.fk_item, jumlah DESC";
 
-            $results = DB::connection('pgsql_nms')->select($query, ['%' . $search . '%', '%' . $search . '%', '%' . $search . '%', $flp->kd_dlr]);
+            $results = DB::connection('pgsql_nms')->select($query, ['%' . $search . '%', '%' . $search . '%', '%' . $search . '%', $flp->kode_dealer]);
         } else {
             $query = "SELECT su.fk_item, mgm.\"DeskripsiType\", w.warna, COUNT(*) AS jumlah
                 FROM \"H1_DOS\".\"stokunit\" AS su
@@ -49,7 +49,7 @@ class StockController extends Controller
                 GROUP BY su.fk_item, mgm.\"DeskripsiType\", w.warna
                 ORDER BY mgm.\"DeskripsiType\", su.fk_item, jumlah DESC";
 
-            $results = DB::connection('pgsql_nms')->select($query, [$flp->kd_dlr]);
+            $results = DB::connection('pgsql_nms')->select($query, [$flp->kode_dealer]);
         }
 
         if (empty($results)) {
@@ -83,7 +83,7 @@ class StockController extends Controller
             'data' => [
                 'search' => $search,
                 'dealer' => [
-                    'kd_dlr' => $flp->kd_dlr,
+                    'kode_dealer' => $flp->kode_dealer,
                 ],
                 'stock' => $data,
             ],

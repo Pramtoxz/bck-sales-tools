@@ -96,7 +96,7 @@ class ProspekController extends Controller
 
         $year = date('y');
         $month = date('m');
-        $dealer = $flp->kd_dlr;
+        $dealer = $flp->kode_dealer;
 
         $lastId = DB::connection('pgsql_nms')
             ->table('H1_DOS.guestbook')
@@ -129,7 +129,7 @@ class ProspekController extends Controller
             'Keterangan' => $validated['keterangan'] ?? null,
             'id_flp' => $flp->id_flp,
             'NamaKariawan' => $flp->nama,
-            'fk_dealer' => $flp->kd_dlr,
+            'fk_dealer' => $flp->kode_dealer,
             'Status_guestbook' => 'f',
             'created_by' => $user->id,
         ]);

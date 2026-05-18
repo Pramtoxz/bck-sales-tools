@@ -24,12 +24,25 @@ class TargetSalesController extends Controller
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-d'));
 
+        \Log::info('Target Sales Request', [
+            'user_id' => $user->id,
+            'flp_id' => $flp->id_flp,
+            'dealer' => $flp->kode_dealer,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ]);
+
         $targetData = TargetFlp::getTargetSalesComparison(
-            $flp->kd_dlr,
+            $flp->kode_dealer,
             $flp->id_flp,
             $startDate,
             $endDate
         );
+
+        \Log::info('Target Sales Result', [
+            'count' => $targetData->count(),
+            'data' => $targetData->toArray(),
+        ]);
 
         if ($targetData->isEmpty()) {
             return response()->json([

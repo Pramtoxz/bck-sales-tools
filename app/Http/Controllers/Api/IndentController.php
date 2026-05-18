@@ -44,7 +44,7 @@ class IndentController extends Controller
             ORDER BY mgm.\"DeskripsiType\", mastercustomer.\"NamaCustomer\"
         ";
 
-        $results = DB::connection('pgsql_nms')->select($query, [$flp->kd_dlr]);
+        $results = DB::connection('pgsql_nms')->select($query, [$flp->kode_dealer]);
 
         if (empty($results)) {
             return response()->json([
@@ -76,7 +76,7 @@ class IndentController extends Controller
             'success' => true,
             'data' => [
                 'dealer' => [
-                    'kd_dlr' => $flp->kd_dlr,
+                    'kode_dealer' => $flp->kode_dealer,
                 ],
                 'indent' => $data,
             ],

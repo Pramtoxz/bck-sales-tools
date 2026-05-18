@@ -20,11 +20,11 @@ class DashboardService
 
         $dealer = DB::connection('pgsql_nms')
             ->table('H1_DOS.masterdealer')
-            ->where('KodeDealer', $flp->kd_dlr)
+            ->where('KodeDealer', $flp->kode_dealer)
             ->first();
 
         return [
-            'dealer_code' => $flp->kd_dlr,
+            'dealer_code' => $flp->kode_dealer,
             'dealer_name' => $dealer->NamaDealer ?? 'Unknown',
         ];
     }
