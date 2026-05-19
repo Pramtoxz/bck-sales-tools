@@ -75,6 +75,7 @@ class DashboardService
             ->table('H1_DOS.spk')
             ->where('id_flp', $idFlp)
             ->whereMonth('TglSPK', Carbon::today()->month)
+            ->whereYear('TglSPK', Carbon::today()->year)
             ->count();
 
         $totalIndent = DB::connection('pgsql_nms')

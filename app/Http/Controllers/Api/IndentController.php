@@ -22,29 +22,31 @@ class IndentController extends Controller
         }
 
         $query = "
-            SELECT 
+            SELECT
                 mgm.\"DeskripsiType\",
-                indent.\"IDCustomer\", 
+                indent.\"IDCustomer\",
                 mastercustomer.\"NamaCustomer\",
-                CASE 
+                CASE
                     WHEN \"NamaLeasing\" IS NULL OR \"NamaLeasing\" = '' THEN 'CASH'
                     ELSE \"NamaLeasing\"
                 END AS \"NamaLeasing\",
-                CONCAT(\"Desc_Tipe\", '-', \"SpkDetail\".\"fk_warna\") AS \"kode_item\",
-                w.warna
+                CONCAT(indent.\"Desc_Tipe\", '-', indent.\"kode_warna_final\") AS \"kode_item\",
+                w.warna,
+                indent.\"Tgl_Antrian\",
+                CASE WHEN spk.id_flp = ? THEN true ELSE false END AS is_mine
             FROM \"H1_DOS\".\"indent\"
             LEFT JOIN \"H1_DOS\".\"SpkDetail\" ON \"SpkDetail\".\"IdSPK\" = \"indent\".\"IDSpk\"
             LEFT JOIN \"H1_DOS\".spk ON spk.\"IDSpk\" = \"indent\".\"IDSpk\"
             LEFT JOIN \"H1_DOS\".mastercustomer ON mastercustomer.\"IDCustomer\" = \"indent\".\"IDCustomer\"
             LEFT JOIN \"H1_DOS\".mastergroupsegmenmotor mgm ON mgm.\"KodeType\" = \"indent\".\"Desc_Tipe\"
-            LEFT JOIN public.tblwarna w ON w.kd_warna = \"SpkDetail\".\"fk_warna\"
-            WHERE \"indent\".\"status_indent\" = 2 
+            LEFT JOIN public.tblwarna w ON w.kd_warna = indent.\"kode_warna_final\"
+            WHERE \"indent\".\"status_indent\" = 2
               AND \"indent\".\"status_approval\" = 't'
               AND \"indent\".\"fk_dealer\" = ?
-            ORDER BY mgm.\"DeskripsiType\", mastercustomer.\"NamaCustomer\"
+            ORDER BY mgm.\"DeskripsiType\", indent.\"Tgl_Antrian\" ASC
         ";
 
-        $results = DB::connection('pgsql_nms')->select($query, [$flp->kode_dealer]);
+        $results = DB::connection('pgsql_nms')->select($query, [$flp->id_flp, $flp->kode_dealer]);
 
         if (empty($results)) {
             return response()->json([
@@ -56,11 +58,14 @@ class IndentController extends Controller
         $grouped = [];
         foreach ($results as $row) {
             $grouped[$row->DeskripsiType][] = [
+                'antrian' => count($grouped[$row->DeskripsiType] ?? []) + 1,
                 'customer_id' => $row->IDCustomer,
                 'customer_name' => $row->NamaCustomer,
                 'leasing' => $row->NamaLeasing,
                 'kode_item' => $row->kode_item,
                 'warna' => $row->warna,
+                'tgl_antrian' => $row->Tgl_Antrian,
+                'is_mine' => $row->is_mine,
             ];
         }
 
