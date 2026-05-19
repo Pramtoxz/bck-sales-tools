@@ -46,6 +46,7 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/actual-spk', [ActualSpkController::class, 'index']);
     Route::get('/actual-spk/detail', [ActualSpkController::class, 'show']);
     Route::get('/actual-sales', [ActualSalesController::class, 'index']);
+    Route::get('/actual-sales/detail', [ActualSalesController::class, 'show']);
     Route::get('/performance', [PerformanceController::class, 'index']);
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update'])->middleware('throttle:write');

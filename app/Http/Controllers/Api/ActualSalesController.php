@@ -105,4 +105,75 @@ class ActualSalesController extends Controller
             ],
         ]);
     }
+
+    public function show(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $id = $request->query('id');
+
+        if (!$id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter id diperlukan',
+            ], 422);
+        }
+
+        $sale = DB::connection('pgsql_nms')
+            ->table('H1_DOS.fakturpenjualan as fp')
+            ->select(
+                'fp.IDFakturPenjualan',
+                'fp.TglPenjualan',
+                'fp.Tdpp',
+                'fp.Tppn',
+                'fp.Tbbn',
+                'fp.Tamount',
+                'fp.status',
+                'so.IDSPK',
+                'spk.IDCustomer',
+                'mastercustomer.NamaCustomer',
+                'mastercustomer.NoHp',
+                'mastercustomer.Alamat',
+                DB::raw("\"SpkDetail\".\"fk_tipe\" || '-' || \"SpkDetail\".\"fk_warna\" as tipe"),
+                'mastergroupsegmenmotor.DeskripsiType as nama_tipe',
+                'tblwarna.warna as nama_warna',
+                'SpkDetail.harga_unit',
+                'spk.IDJenisPembayaran',
+                'setupjenispembayaran.JenisPembayaran',
+                'spk.NamaLeasing',
+                'spk.DP',
+                'spk.Cicilan',
+                'spk.Tenor'
+            )
+            ->join('H1_DOS.salesorder as so', 'so.IDSO', '=', 'fp.IDSO')
+            ->join('H1_DOS.spk', 'spk.IDSpk', '=', 'so.IDSPK')
+            ->leftJoin('H1_DOS.mastercustomer', 'mastercustomer.IDCustomer', '=', 'spk.IDCustomer')
+            ->leftJoin('H1_DOS.SpkDetail', 'SpkDetail.IdSPK', '=', 'spk.IDSpk')
+            ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'spk.IDJenisPembayaran')
+            ->leftJoin('H1_DOS.mastergroupsegmenmotor', 'mastergroupsegmenmotor.KodeType', '=', 'SpkDetail.fk_tipe')
+            ->leftJoin('public.tblwarna', 'tblwarna.kd_warna', '=', 'SpkDetail.fk_warna')
+            ->where('fp.IDFakturPenjualan', $id)
+            ->where('spk.id_flp', $flp->id_flp)
+            ->first();
+
+        if (!$sale) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data penjualan tidak ditemukan',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $sale,
+        ]);
+    }
 }
