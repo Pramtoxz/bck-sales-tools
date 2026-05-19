@@ -42,7 +42,7 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/indent', [IndentController::class, 'index']);
     Route::get('/target-prospek', [TargetProspekController::class, 'index']);
     Route::get('/prospek', [ProspekController::class, 'index']);
-    Route::get('/prospek/{id}', [ProspekController::class, 'show'])->where('id', '.*');
+    Route::get('/prospek/detail', [ProspekController::class, 'show']);
     Route::get('/actual-spk', [ActualSpkController::class, 'index']);
     Route::get('/actual-spk/detail', [ActualSpkController::class, 'show']);
     Route::get('/actual-sales', [ActualSalesController::class, 'index']);
