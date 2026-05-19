@@ -102,7 +102,6 @@ class ActualSpkController extends Controller
                 'mastercustomer.NamaCustomer',
                 'mastercustomer.NoHp',
                 'mastercustomer.Alamat',
-                'mastercustomer.AlamatKantor',
                 'spk.IDJenisPembayaran',
                 'setupjenispembayaran.JenisPembayaran',
                 'spk.NamaLeasing',
