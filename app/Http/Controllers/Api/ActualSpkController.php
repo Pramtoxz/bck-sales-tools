@@ -81,7 +81,7 @@ class ActualSpkController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $id): JsonResponse
+    public function show(Request $request): JsonResponse
     {
         $user = $request->user();
         $flp = $user->flp;
@@ -91,6 +91,15 @@ class ActualSpkController extends Controller
                 'success' => false,
                 'message' => 'User tidak terdaftar sebagai FLP',
             ], 403);
+        }
+
+        $id = $request->query('id');
+
+        if (!$id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter id diperlukan',
+            ], 422);
         }
 
         $spk = DB::connection('pgsql_nms')
