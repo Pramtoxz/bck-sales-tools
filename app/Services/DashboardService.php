@@ -29,27 +29,19 @@ class DashboardService
         ];
     }
 
-    public function getPencapaianHariIni($idFlp, $dealerCode)
+    public function getPencapaianBulanIni($idFlp, $dealerCode)
     {
         $today = Carbon::today()->format('Y-m-d');
         $startOfMonth = Carbon::today()->startOfMonth()->format('Y-m-d');
 
-        $targetBulanIni = DB::connection('pgsql_nms')
+        $target = DB::connection('pgsql_nms')
             ->table('H1_DOS.tbl_target_flp')
             ->where('id_flp', $idFlp)
             ->where('fk_dealer', $dealerCode)
             ->whereRaw("SUBSTRING(bulan_tahun, 4) = ?", [Carbon::today()->format('m/Y')])
             ->sum('target');
 
-        $terjualHariIni = DB::connection('pgsql_nms')
-            ->table('H1_DOS.stokunit as s')
-            ->join('H1_DOS.fakturpenjualan as f', 's.no_so_dlr', '=', 'f.IDSO')
-            ->where('s.id_sales_people', $idFlp)
-            ->where('f.fk_dealer', $dealerCode)
-            ->whereDate('f.TglPenjualan', $today)
-            ->count();
-
-        $terjualBulanIni = DB::connection('pgsql_nms')
+        $terjual = DB::connection('pgsql_nms')
             ->table('H1_DOS.stokunit as s')
             ->join('H1_DOS.fakturpenjualan as f', 's.no_so_dlr', '=', 'f.IDSO')
             ->where('s.id_sales_people', $idFlp)
@@ -57,15 +49,15 @@ class DashboardService
             ->whereBetween('f.TglPenjualan', [$startOfMonth, $today])
             ->count();
 
-        $persentase = $targetBulanIni > 0 
-            ? round(($terjualBulanIni / $targetBulanIni) * 100, 2) 
-            : 0;
+        $persentase = $target > 0 ? round(($terjual / $target) * 100, 2) : 0;
 
         return [
-            'pencapaian_persen' => $persentase,
-            'terjual_hari_ini' => $terjualHariIni,
-            'terjual_bulan_ini' => $terjualBulanIni,
-            'target_bulan_ini' => $targetBulanIni,
+            'bulan' => (int) Carbon::today()->month,
+            'tahun' => (int) Carbon::today()->year,
+            'target' => (int) $target,
+            'terjual' => $terjual,
+            'persentase' => $persentase,
+            'tercapai' => $terjual >= $target && $target > 0,
         ];
     }
 

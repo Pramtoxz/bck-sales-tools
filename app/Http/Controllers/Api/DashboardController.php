@@ -39,7 +39,7 @@ class DashboardController extends Controller
             ], 404);
         }
 
-        $pencapaian = $this->dashboardService->getPencapaianHariIni(
+        $pencapaian = $this->dashboardService->getPencapaianBulanIni(
             $flp->id_flp,
             $dealerInfo['dealer_code']
         );
