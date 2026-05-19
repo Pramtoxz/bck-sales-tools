@@ -37,10 +37,9 @@ class ActualSpkController extends Controller
                 'spk.IDJenisPembayaran',
                 'setupjenispembayaran.JenisPembayaran',
                 'spk.NamaLeasing',
-                'SpkDetail.fk_tipe',
-                'SpkDetail.fk_warna',
-                'SpkDetail.DescMotorMKT',
-                'SpkDetail.DescWarnaMotor',
+                DB::raw("\"SpkDetail\".\"fk_tipe\" || '-' || \"SpkDetail\".\"fk_warna\" as tipe"),
+                'mastergroupsegmenmotor.DeskripsiType as nama_tipe',
+                'tblwarna.warna as nama_warna',
                 'SpkDetail.harga_unit',
                 'SpkDetail.diskon_unit',
                 'spk.DP',
@@ -52,6 +51,8 @@ class ActualSpkController extends Controller
             ->leftJoin('H1_DOS.mastercustomer', 'mastercustomer.IDCustomer', '=', 'spk.IDCustomer')
             ->leftJoin('H1_DOS.SpkDetail', 'SpkDetail.IdSPK', '=', 'spk.IDSpk')
             ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'spk.IDJenisPembayaran')
+            ->leftJoin('H1_DOS.mastergroupsegmenmotor', 'mastergroupsegmenmotor.KodeType', '=', 'SpkDetail.fk_tipe')
+            ->leftJoin('public.tblwarna', 'tblwarna.kd_warna', '=', 'SpkDetail.fk_warna')
             ->where('spk.id_flp', $flp->id_flp)
             ->orderBy('spk.TglSPK', 'desc');
 
@@ -114,10 +115,9 @@ class ActualSpkController extends Controller
                 'spk.IDJenisPembayaran',
                 'setupjenispembayaran.JenisPembayaran',
                 'spk.NamaLeasing',
-                'SpkDetail.fk_tipe',
-                'SpkDetail.fk_warna',
-                'SpkDetail.DescMotorMKT',
-                'SpkDetail.DescWarnaMotor',
+                DB::raw("\"SpkDetail\".\"fk_tipe\" || '-' || \"SpkDetail\".\"fk_warna\" as tipe"),
+                'mastergroupsegmenmotor.DeskripsiType as nama_tipe',
+                'tblwarna.warna as nama_warna',
                 'SpkDetail.harga_unit',
                 'SpkDetail.diskon_unit',
                 'spk.DP',
@@ -130,6 +130,8 @@ class ActualSpkController extends Controller
             ->leftJoin('H1_DOS.mastercustomer', 'mastercustomer.IDCustomer', '=', 'spk.IDCustomer')
             ->leftJoin('H1_DOS.SpkDetail', 'SpkDetail.IdSPK', '=', 'spk.IDSpk')
             ->leftJoin('H1_DOS.setupjenispembayaran', 'setupjenispembayaran.IDJenisPembayaran', '=', 'spk.IDJenisPembayaran')
+            ->leftJoin('H1_DOS.mastergroupsegmenmotor', 'mastergroupsegmenmotor.KodeType', '=', 'SpkDetail.fk_tipe')
+            ->leftJoin('public.tblwarna', 'tblwarna.kd_warna', '=', 'SpkDetail.fk_warna')
             ->where('spk.IDSpk', $id)
             ->where('spk.id_flp', $flp->id_flp)
             ->first();
