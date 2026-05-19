@@ -38,7 +38,9 @@ class DashboardService
             ->table('H1_DOS.tbl_target_flp')
             ->where('id_flp', $idFlp)
             ->where('fk_dealer', $dealerCode)
-            ->whereRaw("SUBSTRING(bulan_tahun, 4) = ?", [Carbon::today()->format('m/Y')])
+            ->whereRaw("TO_DATE(bulan_tahun, 'MM/DD/YYYY') = TO_DATE(?, 'MM/DD/YYYY')", [
+                sprintf('%02d/01/%d', Carbon::today()->month, Carbon::today()->year)
+            ])
             ->sum('target');
 
         $terjual = DB::connection('pgsql_nms')
