@@ -41,11 +41,12 @@ class PerformanceController extends Controller
                 SELECT 
                     ttf.id_flp,
                     COALESCE(flp.nama, 'FLP ' || ttf.id_flp) as nama,
+                    flp.foto,
                     SUM(ttf.target) as total_target
                 FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                 LEFT JOIN \"public\".\"flp\" ON flp.id_flp = ttf.id_flp
                 WHERE ttf.bulan_tahun = ?
-                GROUP BY ttf.id_flp, flp.nama
+                GROUP BY ttf.id_flp, flp.nama, flp.foto
             ),
             actual_summary AS (
                 SELECT 
@@ -58,20 +59,21 @@ class PerformanceController extends Controller
                   AND spk.\"id_flp\" IS NOT NULL
                 GROUP BY spk.\"id_flp\"
             )
-            SELECT 
-                ROW_NUMBER() OVER (ORDER BY 
-                    CASE 
+            SELECT
+                ROW_NUMBER() OVER (ORDER BY
+                    CASE
                         WHEN ts.total_target > 0 THEN (COALESCE(acs.total_terjual, 0)::float / ts.total_target * 100)
-                        ELSE 0 
+                        ELSE 0
                     END DESC
                 ) as rank,
                 ts.id_flp,
                 ts.nama,
+                ts.foto,
                 ts.total_target,
                 COALESCE(acs.total_terjual, 0) as total_terjual,
-                CASE 
+                CASE
                     WHEN ts.total_target > 0 THEN ROUND((COALESCE(acs.total_terjual, 0)::float / ts.total_target * 100)::numeric, 2)
-                    ELSE 0 
+                    ELSE 0
                 END as persentase
             FROM target_summary ts
             LEFT JOIN actual_summary acs ON acs.id_flp = ts.id_flp
@@ -93,6 +95,7 @@ class PerformanceController extends Controller
                 'rank' => (int)$rank->rank,
                 'id_flp' => $rank->id_flp,
                 'nama' => $rank->nama,
+                'foto' => $rank->foto ? url($rank->foto) : null,
                 'total_target' => (int)$rank->total_target,
                 'total_terjual' => (int)$rank->total_terjual,
                 'persentase' => (float)$rank->persentase,
@@ -115,7 +118,7 @@ class PerformanceController extends Controller
                     FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                     LEFT JOIN \"public\".\"flp\" ON flp.id_flp = ttf.id_flp
                     WHERE ttf.bulan_tahun = ?
-                    GROUP BY ttf.id_flp, flp.nama
+                    GROUP BY ttf.id_flp, flp.nama, flp.foto
                 ),
                 actual_summary AS (
                     SELECT 
@@ -157,6 +160,7 @@ class PerformanceController extends Controller
                     'rank' => (int)$rank->rank,
                     'id_flp' => $rank->id_flp,
                     'nama' => $rank->nama,
+                    'foto' => $rank->foto ? url($rank->foto) : null,
                     'total_target' => (int)$rank->total_target,
                     'total_terjual' => (int)$rank->total_terjual,
                     'persentase' => (float)$rank->persentase,
