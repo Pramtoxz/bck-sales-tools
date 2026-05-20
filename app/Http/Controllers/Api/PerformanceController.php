@@ -38,7 +38,7 @@ class PerformanceController extends Controller
 
         $rankings = DB::connection('pgsql_nms')->select("
             WITH target_summary AS (
-                SELECT 
+                SELECT
                     ttf.id_flp,
                     COALESCE(flp.nama, 'FLP ' || ttf.id_flp) as nama,
                     flp.foto,
@@ -46,16 +46,18 @@ class PerformanceController extends Controller
                 FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                 LEFT JOIN \"public\".\"flp\" ON flp.id_flp = ttf.id_flp
                 WHERE ttf.bulan_tahun = ?
+                  AND ttf.fk_dealer = ?
                 GROUP BY ttf.id_flp, flp.nama, flp.foto
             ),
             actual_summary AS (
-                SELECT 
+                SELECT
                     spk.\"id_flp\",
                     COUNT(*) as total_terjual
                 FROM \"H1_DOS\".\"fakturpenjualan\" fp
                 JOIN \"H1_DOS\".\"salesorder\" so ON so.\"IDSO\" = fp.\"IDSO\"
                 JOIN \"H1_DOS\".\"spk\" ON spk.\"IDSpk\" = so.\"IDSPK\"
                 WHERE fp.\"TglPenjualan\" BETWEEN ? AND ?
+                  AND fp.\"fk_dealer\" = ?
                   AND spk.\"id_flp\" IS NOT NULL
                 GROUP BY spk.\"id_flp\"
             )
@@ -80,7 +82,7 @@ class PerformanceController extends Controller
             WHERE ts.total_target > 0
             ORDER BY persentase DESC
             LIMIT ?
-        ", [$bulanTahunFormat, $startDate, $endDate, $limit]);
+        ", [$bulanTahunFormat, $flp->kode_dealer, $startDate, $endDate, $flp->kode_dealer, $limit]);
 
         \Log::info('Performance Query Result', [
             'count' => count($rankings),
@@ -111,48 +113,50 @@ class PerformanceController extends Controller
         if (!$myRank) {
             $myRankQuery = DB::connection('pgsql_nms')->select("
                 WITH target_summary AS (
-                    SELECT 
+                    SELECT
                         ttf.id_flp,
                         COALESCE(flp.nama, 'FLP ' || ttf.id_flp) as nama,
                         SUM(ttf.target) as total_target
                     FROM \"H1_DOS\".\"tbl_target_flp\" ttf
                     LEFT JOIN \"public\".\"flp\" ON flp.id_flp = ttf.id_flp
                     WHERE ttf.bulan_tahun = ?
+                      AND ttf.fk_dealer = ?
                     GROUP BY ttf.id_flp, flp.nama, flp.foto
                 ),
                 actual_summary AS (
-                    SELECT 
+                    SELECT
                         spk.\"id_flp\",
                         COUNT(*) as total_terjual
                     FROM \"H1_DOS\".\"fakturpenjualan\" fp
                     JOIN \"H1_DOS\".\"salesorder\" so ON so.\"IDSO\" = fp.\"IDSO\"
                     JOIN \"H1_DOS\".\"spk\" ON spk.\"IDSpk\" = so.\"IDSPK\"
                     WHERE fp.\"TglPenjualan\" BETWEEN ? AND ?
+                      AND fp.\"fk_dealer\" = ?
                       AND spk.\"id_flp\" IS NOT NULL
                     GROUP BY spk.\"id_flp\"
                 ),
                 ranked_flp AS (
-                    SELECT 
-                        ROW_NUMBER() OVER (ORDER BY 
-                            CASE 
+                    SELECT
+                        ROW_NUMBER() OVER (ORDER BY
+                            CASE
                                 WHEN ts.total_target > 0 THEN (COALESCE(acs.total_terjual, 0)::float / ts.total_target * 100)
-                                ELSE 0 
+                                ELSE 0
                             END DESC
                         ) as rank,
                         ts.id_flp,
                         ts.nama,
                         ts.total_target,
                         COALESCE(acs.total_terjual, 0) as total_terjual,
-                        CASE 
+                        CASE
                             WHEN ts.total_target > 0 THEN ROUND((COALESCE(acs.total_terjual, 0)::float / ts.total_target * 100)::numeric, 2)
-                            ELSE 0 
+                            ELSE 0
                         END as persentase
                     FROM target_summary ts
                     LEFT JOIN actual_summary acs ON acs.id_flp = ts.id_flp
                     WHERE ts.total_target > 0
                 )
                 SELECT * FROM ranked_flp WHERE id_flp = ?
-            ", [$bulanTahunFormat, $startDate, $endDate, $flp->id_flp]);
+            ", [$bulanTahunFormat, $flp->kode_dealer, $startDate, $endDate, $flp->kode_dealer, $flp->id_flp]);
 
             if (!empty($myRankQuery)) {
                 $rank = $myRankQuery[0];
