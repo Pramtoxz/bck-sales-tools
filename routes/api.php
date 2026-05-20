@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ActualSpkController;
 use App\Http\Controllers\Api\PerformanceController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ActualSalesController;
+use App\Http\Controllers\Api\MasterController;
 
 RateLimiter::for('auth', function (Request $request) {
     return Limit::perMinute(5)->by($request->ip());
@@ -43,17 +44,25 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/target-prospek', [TargetProspekController::class, 'index']);
     Route::get('/prospek', [ProspekController::class, 'index']);
     Route::get('/prospek/detail', [ProspekController::class, 'show']);
+    Route::get('/prospek/cek-leads', [ProspekController::class, 'cekLeads']);
     Route::get('/actual-spk', [ActualSpkController::class, 'index']);
     Route::get('/actual-spk/detail', [ActualSpkController::class, 'show']);
     Route::get('/actual-sales', [ActualSalesController::class, 'index']);
     Route::get('/actual-sales/detail', [ActualSalesController::class, 'show']);
     Route::get('/performance', [PerformanceController::class, 'index']);
+    Route::get('/master/sumber-data', [MasterController::class, 'sumberData']);
+    Route::get('/master/tipe-konsumen', [MasterController::class, 'tipeKonsumen']);
+    Route::get('/master/rencana-pembayaran', [MasterController::class, 'rencanaPembayaran']);
+    Route::get('/master/tipe-kendaraan', [MasterController::class, 'tipeKendaraan']);
+    Route::get('/master/warna-kendaraan', [MasterController::class, 'warnaKendaraan']);
+    Route::get('/master/janji-temu', [MasterController::class, 'janjiTemu']);
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update'])->middleware('throttle:write');
 });
 
 Route::middleware(['auth:api', 'throttle:write'])->group(function () {
     Route::post('/prospek', [ProspekController::class, 'store']);
+    Route::post('/prospek/generate-leads', [ProspekController::class, 'generateLeads']);
     Route::put('/prospek/{id}', [ProspekController::class, 'update'])->where('id', '.*');
     Route::delete('/prospek/{id}', [ProspekController::class, 'destroy'])->where('id', '.*');
     Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
