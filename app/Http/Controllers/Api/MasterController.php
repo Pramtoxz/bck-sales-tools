@@ -25,6 +25,7 @@ class MasterController extends Controller
         $data = DB::connection('pgsql_nms')
             ->table('Master_Schema.SetupTipeCustomer')
             ->select('id_tipe', 'tipe_customer')
+            ->distinct()
             ->orderBy('tipe_customer')
             ->get();
 
