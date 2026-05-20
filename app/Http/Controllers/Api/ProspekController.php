@@ -157,7 +157,7 @@ class ProspekController extends Controller
         }
 
         $lead = DB::connection('pgsql_nms')
-            ->table('HC3.FUProspek')
+            ->table('H1_HC3.FUProspek')
             ->join('H1_DOS.guestbook', 'guestbook.IDGuestBook', '=', 'FUProspek.fk_prospek')
             ->join('HC3.master_kons_ve', 'guestbook.IDGuestBook', '=', 'master_kons_ve.id_guestbook')
             ->leftJoin('H1_DOS.spk', 'spk.IDGuestBook', '=', 'guestbook.IDGuestBook')
@@ -193,7 +193,7 @@ class ProspekController extends Controller
         }
 
         $riwayatFu = DB::connection('pgsql_nms')
-            ->table('HC3.FUProspek')
+            ->table('H1_HC3.FUProspek')
             ->leftJoin('Master_Schema.master_fu_status', 'master_fu_status.id', '=', 'FUProspek.jenis_fu_ve')
             ->leftJoin('public.flp', 'flp.id_flp', '=', 'FUProspek.id_flp')
             ->where('FUProspek.fk_prospek', $lead->id_guestbook)
@@ -259,7 +259,7 @@ class ProspekController extends Controller
             }
 
             $dataFuProspek = DB::connection('pgsql_nms')
-                ->table('HC3.FUProspek')
+                ->table('H1_HC3.FUProspek')
                 ->where('fk_prospek', $dataLeads->id_guestbook)
                 ->select('batas_fu_sla', 'ontime_sla2_ve', 'id_flp_own')
                 ->first();
@@ -268,7 +268,7 @@ class ProspekController extends Controller
             $waktuAkhir = $dataFuProspek ? strtotime($dataFuProspek->batas_fu_sla) : 0;
             $sla = $waktuAkhir >= $waktuAwal ? '1' : '0';
 
-            DB::connection('pgsql_nms')->table('HC3.FUProspek')
+            DB::connection('pgsql_nms')->table('H1_HC3.FUProspek')
                 ->where('fk_prospek', $dataLeads->id_guestbook)
                 ->update([
                     'hasil_fu' => 7,
@@ -283,7 +283,7 @@ class ProspekController extends Controller
                     'keterangan_lainnya_ve' => 'Data Generate Guestbook',
                 ]);
 
-            $idFuDetil = DB::connection('pgsql_nms')->table('HC3.FUProspekDetil')->insertGetId([
+            $idFuDetil = DB::connection('pgsql_nms')->table('H1_HC3.FUProspek_Detil')->insertGetId([
                 'fk_prospek' => $dataLeads->id_guestbook,
                 'fk_dealer' => $flp->kode_dealer,
                 'jenis_fu' => 1,
@@ -308,13 +308,13 @@ class ProspekController extends Controller
                 ]);
 
             $stage8Count = DB::connection('pgsql_nms')
-                ->table('HC3.master_kons_ve_log')
+                ->table('Master_Schema.tbl_ve_log')
                 ->where('lead_id', $idLeads)
                 ->where('stage_id', '8')
                 ->count();
 
             if ($stage8Count === 0) {
-                DB::connection('pgsql_nms')->table('HC3.master_kons_ve_log')->insert([
+                DB::connection('pgsql_nms')->table('Master_Schema.tbl_ve_log')->insert([
                     'lead_id' => $idLeads,
                     'stage_id' => 8,
                     'nama' => $dataLeads->nama,
@@ -535,7 +535,7 @@ class ProspekController extends Controller
         }
 
         $lastVelog = null;
-        foreach (DB::connection('pgsql_nms')->table('HC3.master_kons_ve_log')->where('lead_id', $idLeads)->get() as $velog) {
+        foreach (DB::connection('pgsql_nms')->table('Master_Schema.tbl_ve_log')->where('lead_id', $idLeads)->get() as $velog) {
             $velogArray = (array) $velog;
             unset($velogArray['id']);
             $velogArray['lead_id'] = $newIdLeads;
@@ -561,7 +561,7 @@ class ProspekController extends Controller
                 }
             }
 
-            DB::connection('pgsql_nms')->table('HC3.master_kons_ve_log')->insert($velogArray);
+            DB::connection('pgsql_nms')->table('Master_Schema.tbl_ve_log')->insert($velogArray);
             $lastVelog = $velog;
         }
 
@@ -584,7 +584,7 @@ class ProspekController extends Controller
             $guestArray['updated_at'] = $now;
             DB::connection('pgsql_nms')->table('H1_DOS.guestbook')->insert($guestArray);
 
-            foreach (DB::connection('pgsql_nms')->table('HC3.FUProspek')->where('fk_prospek', $oldIdGuestbook)->get() as $fu) {
+            foreach (DB::connection('pgsql_nms')->table('H1_HC3.FUProspek')->where('fk_prospek', $oldIdGuestbook)->get() as $fu) {
                 $fuArray = (array) $fu;
                 unset($fuArray['id']);
                 $fuArray['fk_prospek'] = $newIdGuestbook;
@@ -594,7 +594,7 @@ class ProspekController extends Controller
                     $fuArray['tgl_next_fu'] = $tanggalNextFu;
                 }
                 $fuArray['batas_fu_sla'] = $tanggalCustomFuSla;
-                DB::connection('pgsql_nms')->table('HC3.FUProspek')->insert($fuArray);
+                DB::connection('pgsql_nms')->table('H1_HC3.FUProspek')->insert($fuArray);
             }
         }
 
