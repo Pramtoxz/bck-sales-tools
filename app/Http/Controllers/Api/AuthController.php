@@ -11,7 +11,6 @@ use App\Models\FlpDevice;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -106,7 +105,7 @@ class AuthController extends Controller
     public function devices(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         if (!$user->flp) {
             return response()->json([
                 'success' => false,
@@ -131,6 +130,141 @@ class AuthController extends Controller
             'data' => [
                 'devices' => $devices,
             ],
+        ]);
+    }
+
+    public function biometricRegister(Request $request): JsonResponse
+    {
+        $request->validate([
+            'device_id' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $device = FlpDevice::where('id_flp', $flp->id_flp)
+            ->where('device_id', $request->device_id)
+            ->first();
+
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device tidak terdaftar. Login email terlebih dahulu.',
+            ], 403);
+        }
+
+        $rawToken = bin2hex(random_bytes(32));
+
+        $device->update([
+            'biometric_token' => hash('sha256', $rawToken),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sidik jari berhasil didaftarkan',
+            'data' => [
+                'biometric_token' => $rawToken,
+            ],
+        ]);
+    }
+
+    public function biometricLogin(Request $request): JsonResponse
+    {
+        $request->validate([
+            'device_id'       => 'required|string',
+            'biometric_token' => 'required|string',
+        ]);
+
+        $device = FlpDevice::where('device_id', $request->device_id)
+            ->whereNotNull('biometric_token')
+            ->first();
+
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device tidak terdaftar untuk login sidik jari',
+            ], 401);
+        }
+
+        if (!hash_equals($device->biometric_token, hash('sha256', $request->biometric_token))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token sidik jari tidak valid',
+            ], 401);
+        }
+
+        $user = User::find($device->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan',
+            ], 401);
+        }
+
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $token = $user->createToken($request->device_id)->plainTextToken;
+
+        $device->update(['last_active' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login sidik jari berhasil',
+            'data' => [
+                'token' => $token,
+                'user'  => new UserResource($user),
+                'flp'   => new FlpResource($flp),
+            ],
+        ]);
+    }
+
+    public function biometricRevoke(Request $request): JsonResponse
+    {
+        $request->validate([
+            'device_id' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $device = FlpDevice::where('id_flp', $flp->id_flp)
+            ->where('device_id', $request->device_id)
+            ->first();
+
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device tidak ditemukan',
+            ], 404);
+        }
+
+        $device->update(['biometric_token' => null]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akses sidik jari berhasil dinonaktifkan',
         ]);
     }
 }

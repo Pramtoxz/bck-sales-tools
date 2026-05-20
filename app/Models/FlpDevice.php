@@ -19,6 +19,7 @@ class FlpDevice extends Model
         'device_name',
         'device_type',
         'fcm_token',
+        'biometric_token',
         'last_active',
     ];
 

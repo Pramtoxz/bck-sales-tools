@@ -30,12 +30,15 @@ RateLimiter::for('write', function (Request $request) {
 });
 
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+Route::post('/auth/biometric/login', [AuthController::class, 'biometricLogin'])->middleware('throttle:auth');
 
 Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::get('/auth/devices', [AuthController::class, 'devices']);
+    Route::post('/auth/biometric/register', [AuthController::class, 'biometricRegister']);
+    Route::post('/auth/biometric/revoke', [AuthController::class, 'biometricRevoke']);
     
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/target-sales', [TargetSalesController::class, 'index']);
