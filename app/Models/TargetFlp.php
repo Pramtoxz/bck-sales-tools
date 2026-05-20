@@ -80,10 +80,27 @@ class TargetFlp extends Model
             ->orderByDesc('total_target')
             ->get();
 
+        $targetKeys = [];
         foreach ($targetData as $target) {
             $key = $target->id_flp . '|' . strtoupper($target->series);
-            $target->total_terjual = isset($terjualData[$key]) ? $terjualData[$key]->total_terjual : 0;
+            $target->total_terjual = isset($terjualData[$key]) ? (int)$terjualData[$key]->total_terjual : 0;
             $target->selisih = $target->total_target - $target->total_terjual;
+            $targetKeys[$key] = true;
+        }
+
+        foreach ($terjualData as $key => $terjual) {
+            if (!isset($targetKeys[$key])) {
+                $extra = (object)[
+                    'id_flp'        => $terjual->id_sales_people,
+                    'nama'          => null,
+                    'series'        => $terjual->series,
+                    'bulan_tahun'   => null,
+                    'total_target'  => 0,
+                    'total_terjual' => (int)$terjual->total_terjual,
+                    'selisih'       => -(int)$terjual->total_terjual,
+                ];
+                $targetData->push($extra);
+            }
         }
 
         return $targetData;

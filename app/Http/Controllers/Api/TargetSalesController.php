@@ -44,10 +44,14 @@ class TargetSalesController extends Controller
             'data' => $targetData->toArray(),
         ]);
 
-        if ($targetData->isEmpty()) {
+        $hasData = $targetData->filter(function($item) {
+            return $item->total_target > 0 || $item->total_terjual > 0;
+        })->isNotEmpty();
+
+        if (!$hasData) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data target untuk periode ini',
+                'message' => 'Tidak ada data target maupun penjualan untuk periode ini',
             ], 404);
         }
 
@@ -59,7 +63,7 @@ class TargetSalesController extends Controller
         $totalTerjual = 0;
 
         $data = $sorted->filter(function($item) {
-            return $item->total_target > 0;
+            return $item->total_target > 0 || $item->total_terjual > 0;
         })->map(function($item) use (&$totalTarget, &$totalTerjual) {
             $totalTarget += $item->total_target;
             $totalTerjual += $item->total_terjual;
