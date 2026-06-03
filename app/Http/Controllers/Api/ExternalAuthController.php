@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\External;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -8,8 +8,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
+class ExternalAuthController extends Controller
 {
+    private const ALLOWED_DEALERS = ['06750', '06732', '08199', '00399', '09164'];
+
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -28,9 +30,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $allowedDealers = ['5670', '6732', '08199', '00399', '09164'];
-
-        if (!$user->is_kacab || !in_array((string) $user->fk_dealer, $allowedDealers, true)) {
+        if (!$user->is_kacab || !in_array((string) $user->fk_dealer, self::ALLOWED_DEALERS, true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akses ditolak. User tidak memiliki hak akses.',

@@ -16,7 +16,7 @@ use App\Http\Controllers\Api\PerformanceController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ActualSalesController;
 use App\Http\Controllers\Api\MasterController;
-use App\Http\Controllers\Api\External\AuthController as ExternalAuthController;
+use App\Http\Controllers\Api\ExternalAuthController;
 
 RateLimiter::for('auth', function (Request $request) {
     return Limit::perMinute(5)->by($request->ip());
