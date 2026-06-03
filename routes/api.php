@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\PerformanceController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ActualSalesController;
 use App\Http\Controllers\Api\MasterController;
+use App\Http\Controllers\Api\External\AuthController as ExternalAuthController;
 
 RateLimiter::for('auth', function (Request $request) {
     return Limit::perMinute(5)->by($request->ip());
@@ -69,6 +70,10 @@ Route::middleware(['auth:api', 'throttle:write'])->group(function () {
     Route::put('/prospek/{id}', [ProspekController::class, 'update'])->where('id', '.*');
     Route::delete('/prospek/{id}', [ProspekController::class, 'destroy'])->where('id', '.*');
     Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
+});
+
+Route::middleware(['external.key', 'throttle:auth'])->prefix('external')->group(function () {
+    Route::post('/auth', [ExternalAuthController::class, 'login']);
 });
 
 Route::get('/health', function () {

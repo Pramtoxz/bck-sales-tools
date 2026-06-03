@@ -20,6 +20,8 @@ class User extends Authenticatable
         'username',
         'level',
         'no_hp',
+        'fk_dealer',
+        'is_kacab'
     ];
 
     protected $hidden = [
