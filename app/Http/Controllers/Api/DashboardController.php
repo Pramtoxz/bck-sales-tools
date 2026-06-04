@@ -41,7 +41,8 @@ class DashboardController extends Controller
 
         $pencapaian = $this->dashboardService->getPencapaianBulanIni(
             $flp->id_flp,
-            $dealerInfo['dealer_code']
+            $dealerInfo['dealer_code'],
+            $dealerInfo['kd_kota']
         );
 
         $summary = $this->dashboardService->getSummaryMetrics(

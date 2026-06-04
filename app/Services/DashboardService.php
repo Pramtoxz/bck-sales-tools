@@ -23,15 +23,22 @@ class DashboardService
             ->where('KodeDealer', $flp->kode_dealer)
             ->first();
 
+        $tblDealer = DB::connection('pgsql_nms')
+            ->table('public.tbldealer')
+            ->where('kd_dealer_ahm', $flp->kode_dealer)
+            ->selectRaw('LEFT(fk_kelurahan, 4) AS kd_kota')
+            ->first();
+
         return [
             'dealer_code' => $flp->kode_dealer,
             'dealer_name' => $dealer->NamaDealer ?? 'Unknown',
+            'kd_kota'     => $tblDealer->kd_kota ?? null,
         ];
     }
 
-    public function getPencapaianBulanIni($idFlp, $dealerCode)
+    public function getPencapaianBulanIni($idFlp, $dealerCode, $kdKota = null)
     {
-        $today = Carbon::today()->format('Y-m-d');
+        $today        = Carbon::today()->format('Y-m-d');
         $startOfMonth = Carbon::today()->startOfMonth()->format('Y-m-d');
 
         $target = DB::connection('pgsql_nms')
@@ -43,23 +50,33 @@ class DashboardService
             ])
             ->sum('target');
 
-        $terjual = DB::connection('pgsql_nms')
+        $baseQuery = DB::connection('pgsql_nms')
             ->table('H1_DOS.stokunit as s')
             ->join('H1_DOS.fakturpenjualan as f', 's.no_so_dlr', '=', 'f.IDSO')
             ->where('s.id_sales_people', $idFlp)
             ->where('f.fk_dealer', $dealerCode)
-            ->whereBetween('f.TglPenjualan', [$startOfMonth, $today])
-            ->count();
+            ->whereBetween('f.TglPenjualan', [$startOfMonth, $today]);
+
+        $terjual = (clone $baseQuery)->count();
+
+        $area = (clone $baseQuery)
+            ->selectRaw('
+                COUNT(*) FILTER (WHERE s.kota = ?) AS in_area,
+                COUNT(*) FILTER (WHERE s.kota <> ? OR s.kota IS NULL) AS out_area
+            ', [$kdKota, $kdKota])
+            ->first();
 
         $persentase = $target > 0 ? round(($terjual / $target) * 100, 2) : 0;
 
         return [
-            'bulan' => (int) Carbon::today()->month,
-            'tahun' => (int) Carbon::today()->year,
-            'target' => (int) $target,
-            'terjual' => $terjual,
-            'persentase' => $persentase,
-            'tercapai' => $terjual >= $target && $target > 0,
+            'bulan'     => (int) Carbon::today()->month,
+            'tahun'     => (int) Carbon::today()->year,
+            'target'    => (int) $target,
+            'terjual'   => $terjual,
+            'in_area'   => $kdKota ? (int) $area->in_area  : null,
+            'out_area'  => $kdKota ? (int) $area->out_area : null,
+            'persentase'=> $persentase,
+            'tercapai'  => $terjual >= $target && $target > 0,
         ];
     }
 
