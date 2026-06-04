@@ -21,30 +21,44 @@ class IndentController extends Controller
             ], 403);
         }
 
-        $query = "
+        $query = '
             SELECT
-                mgm.\"DeskripsiType\",
-                indent.\"IDCustomer\",
-                mastercustomer.\"NamaCustomer\",
+                indent."Desc_Tipe",
+                COALESCE(mgm."DeskripsiType", indent."Desc_Tipe")           AS "DeskripsiType",
+                COALESCE(NULLIF(mgm."idx_category", \'\')::integer, 5)      AS "idx_category",
+                COALESCE(NULLIF(TRIM(mgm."Categori"), \'\'), \'CBU\')        AS "Categori",
+                indent."IDCustomer",
+                mastercustomer."NamaCustomer",
                 CASE
-                    WHEN \"NamaLeasing\" IS NULL OR \"NamaLeasing\" = '' THEN 'CASH'
-                    ELSE \"NamaLeasing\"
-                END AS \"NamaLeasing\",
-                CONCAT(indent.\"Desc_Tipe\", '-', indent.\"kode_warna_final\") AS \"kode_item\",
+                    WHEN spk."NamaLeasing" IS NULL OR spk."NamaLeasing" = \'\' THEN \'CASH\'
+                    ELSE spk."NamaLeasing"
+                END AS "NamaLeasing",
+                LOWER(CONCAT(indent."Desc_Tipe", \'-\', indent."kode_warna_final")) AS "kode_item",
                 w.warna,
-                indent.\"Tgl_Antrian\",
-                CASE WHEN spk.id_flp = ? THEN true ELSE false END AS is_mine
-            FROM \"H1_DOS\".\"indent\"
-            LEFT JOIN \"H1_DOS\".\"SpkDetail\" ON \"SpkDetail\".\"IdSPK\" = \"indent\".\"IDSpk\"
-            LEFT JOIN \"H1_DOS\".spk ON spk.\"IDSpk\" = \"indent\".\"IDSpk\"
-            LEFT JOIN \"H1_DOS\".mastercustomer ON mastercustomer.\"IDCustomer\" = \"indent\".\"IDCustomer\"
-            LEFT JOIN \"H1_DOS\".mastergroupsegmenmotor mgm ON mgm.\"KodeType\" = \"indent\".\"Desc_Tipe\"
-            LEFT JOIN public.tblwarna w ON w.kd_warna = indent.\"kode_warna_final\"
-            WHERE \"indent\".\"status_indent\" = 2
-              AND \"indent\".\"status_approval\" = 't'
-              AND \"indent\".\"fk_dealer\" = ?
-            ORDER BY mgm.\"DeskripsiType\", indent.\"Tgl_Antrian\" ASC
-        ";
+                indent."Tgl_Antrian",
+                DATE_PART(\'day\', NOW() - indent."Tgl_Antrian")::integer AS umur_indent,
+                CASE WHEN spk.id_flp = ? THEN true ELSE false END AS is_mine,
+                CASE
+                    WHEN indent."tgl_fulfill" IS NOT NULL
+                     AND indent."no_rangka"   IS NOT NULL AND indent."no_rangka" <> \'\'
+                     AND indent."no_mesin"    IS NOT NULL AND indent."no_mesin"  <> \'\'
+                    THEN \'terpenuhi\'
+                    ELSE \'antrian\'
+                END AS status
+            FROM "H1_DOS"."indent"
+            LEFT JOIN "H1_DOS".spk             ON spk."IDSpk"        = indent."IDSpk"
+            LEFT JOIN "H1_DOS".mastercustomer   ON mastercustomer."IDCustomer" = indent."IDCustomer"
+            LEFT JOIN "H1_DOS".mastergroupsegmenmotor mgm ON mgm."KodeType" = indent."Desc_Tipe"
+            LEFT JOIN public.tblwarna w          ON w.kd_warna = indent."kode_warna_final"
+            WHERE indent."status_indent"  = 2
+              AND indent."status_approval" = \'t\'
+              AND indent."fk_dealer"       = ?
+              AND indent."Tgl_Antrian"     IS NOT NULL
+            ORDER BY
+                COALESCE(NULLIF(mgm."idx_category", \'\')::integer, 5) ASC,
+                COALESCE(mgm."DeskripsiType", indent."Desc_Tipe") ASC,
+                indent."Tgl_Antrian" ASC
+        ';
 
         $results = DB::connection('pgsql_nms')->select($query, [$flp->id_flp, $flp->kode_dealer]);
 
@@ -57,25 +71,33 @@ class IndentController extends Controller
 
         $grouped = [];
         foreach ($results as $row) {
-            $grouped[$row->DeskripsiType][] = [
-                'antrian' => count($grouped[$row->DeskripsiType] ?? []) + 1,
-                'customer_id' => $row->IDCustomer,
+            $key   = $row->Desc_Tipe;
+            $label = $row->DeskripsiType . ' (' . $row->Desc_Tipe . ')';
+
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'tipe'         => $label,
+                    'categori'     => $row->Categori,
+                    'idx_category' => $row->idx_category,
+                    'items'        => [],
+                ];
+            }
+
+            $grouped[$key]['items'][] = [
+                'antrian'       => count($grouped[$key]['items']) + 1,
+                'customer_id'   => $row->IDCustomer,
                 'customer_name' => $row->NamaCustomer,
-                'leasing' => $row->NamaLeasing,
-                'kode_item' => $row->kode_item,
-                'warna' => $row->warna,
-                'tgl_antrian' => $row->Tgl_Antrian,
-                'is_mine' => $row->is_mine,
+                'leasing'       => $row->NamaLeasing,
+                'kode_item'     => $row->kode_item,
+                'warna'         => $row->warna,
+                'tgl_antrian'   => $row->Tgl_Antrian,
+                'umur_indent'   => $row->umur_indent,
+                'is_mine'       => $row->is_mine,
+                'status'        => $row->status,
             ];
         }
 
-        $data = [];
-        foreach ($grouped as $tipe => $items) {
-            $data[] = [
-                'tipe' => $tipe,
-                'items' => $items,
-            ];
-        }
+        $data = array_values($grouped);
 
         return response()->json([
             'success' => true,

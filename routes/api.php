@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\TargetSalesController;
 use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Api\IndentController;
-use App\Http\Controllers\Api\TargetProspekController;
+use App\Http\Controllers\Api\JumlahProspekController;
 use App\Http\Controllers\Api\ProspekController;
 use App\Http\Controllers\Api\ActualSpkController;
 use App\Http\Controllers\Api\PerformanceController;
@@ -45,7 +45,7 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/target-sales', [TargetSalesController::class, 'index']);
     Route::get('/stock', [StockController::class, 'index']);
     Route::get('/indent', [IndentController::class, 'index']);
-    Route::get('/target-prospek', [TargetProspekController::class, 'index']);
+    Route::get('/jumlah-prospek', [JumlahProspekController::class, 'index']);
     Route::get('/prospek', [ProspekController::class, 'index']);
     Route::get('/prospek/detail', [ProspekController::class, 'show']);
     Route::get('/prospek/cek-leads', [ProspekController::class, 'cekLeads']);
