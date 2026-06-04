@@ -40,11 +40,21 @@ class JumlahProspekController extends Controller
             ->whereRaw('EXTRACT(YEAR FROM "Tanggal") = ?', [$tahun])
             ->count();
 
-        $deal = DB::connection('pgsql_nms')
+        $dealDealer = DB::connection('pgsql_nms')
             ->table('H1_DOS.guestbook as gb')
             ->join('H1_DOS.spk as s', DB::raw('s."IDGuestBook"'), '=', DB::raw('gb."IDGuestBook"'))
             ->join('H1_DOS.salesorder as so', DB::raw('so."IDSPK"'), '=', DB::raw('s."IDSpk"'))
             ->where('gb.fk_dealer', $dealer)
+            ->whereRaw('EXTRACT(MONTH FROM gb."Tanggal") = ?', [$bulan])
+            ->whereRaw('EXTRACT(YEAR FROM gb."Tanggal") = ?', [$tahun])
+            ->count();
+
+        $dealFlp = DB::connection('pgsql_nms')
+            ->table('H1_DOS.guestbook as gb')
+            ->join('H1_DOS.spk as s', DB::raw('s."IDGuestBook"'), '=', DB::raw('gb."IDGuestBook"'))
+            ->join('H1_DOS.salesorder as so', DB::raw('so."IDSPK"'), '=', DB::raw('s."IDSpk"'))
+            ->where('gb.fk_dealer', $dealer)
+            ->where('gb.id_flp', $idFlp)
             ->whereRaw('EXTRACT(MONTH FROM gb."Tanggal") = ?', [$bulan])
             ->whereRaw('EXTRACT(YEAR FROM gb."Tanggal") = ?', [$tahun])
             ->count();
@@ -56,7 +66,8 @@ class JumlahProspekController extends Controller
                 'tahun'           => $tahun,
                 'jumlah_prospek'  => $jumlahProspek,
                 'my_prospek'      => $myProspek,
-                'deal'            => $deal,
+                'deal'            => $dealDealer,
+                'deal_flp'        => $dealFlp,
             ],
         ]);
     }
