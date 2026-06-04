@@ -12,7 +12,7 @@ class IndentController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $flp = $user->flp;
+        $flp  = $user->flp;
 
         if (!$flp) {
             return response()->json([
@@ -46,13 +46,12 @@ class IndentController extends Controller
                     ELSE \'antrian\'
                 END AS status
             FROM "H1_DOS"."indent"
-            LEFT JOIN "H1_DOS".spk             ON spk."IDSpk"        = indent."IDSpk"
-            LEFT JOIN "H1_DOS".mastercustomer   ON mastercustomer."IDCustomer" = indent."IDCustomer"
+            LEFT JOIN "H1_DOS".spk              ON spk."IDSpk"       = indent."IDSpk"
+            LEFT JOIN "H1_DOS".mastercustomer    ON mastercustomer."IDCustomer" = indent."IDCustomer"
             LEFT JOIN "H1_DOS".mastergroupsegmenmotor mgm ON mgm."KodeType" = indent."Desc_Tipe"
             LEFT JOIN public.tblwarna w          ON w.kd_warna = indent."kode_warna_final"
-            WHERE indent."status_indent"  = 2
-              AND indent."status_approval" = \'t\'
-              AND indent."fk_dealer"       = ?
+            WHERE indent."status_indent" = 2
+              AND indent."fk_dealer"      = ?
               AND indent."Tgl_Antrian"     IS NOT NULL
             ORDER BY
                 COALESCE(NULLIF(mgm."idx_category", \'\')::integer, 5) ASC,
@@ -97,15 +96,11 @@ class IndentController extends Controller
             ];
         }
 
-        $data = array_values($grouped);
-
         return response()->json([
             'success' => true,
             'data' => [
-                'dealer' => [
-                    'kode_dealer' => $flp->kode_dealer,
-                ],
-                'indent' => $data,
+                'dealer' => ['kode_dealer' => $flp->kode_dealer],
+                'indent' => array_values($grouped),
             ],
         ]);
     }
