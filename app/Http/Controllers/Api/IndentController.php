@@ -33,7 +33,7 @@ class IndentController extends Controller
                     WHEN spk."NamaLeasing" IS NULL OR spk."NamaLeasing" = \'\' THEN \'CASH\'
                     ELSE spk."NamaLeasing"
                 END AS "NamaLeasing",
-                LOWER(CONCAT(indent."Desc_Tipe", \'-\', indent."kode_warna_final")) AS "kode_item",
+                CONCAT(indent."Desc_Tipe", \'-\', indent."kode_warna_final") AS "kode_item",
                 w.warna,
                 indent."Tgl_Antrian",
                 DATE_PART(\'day\', NOW() - indent."Tgl_Antrian")::integer AS umur_indent,
