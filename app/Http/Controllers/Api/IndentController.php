@@ -38,6 +38,7 @@ class IndentController extends Controller
                 indent."Tgl_Antrian",
                 DATE_PART(\'day\', NOW() - indent."Tgl_Antrian")::integer AS umur_indent,
                 CASE WHEN spk.id_flp = ? THEN true ELSE false END AS is_mine,
+                CASE WHEN DATE(indent."created_at") <> DATE(indent."Tgl_Antrian") THEN true ELSE false END AS is_revisi,
                 CASE
                     WHEN indent."tgl_fulfill" IS NOT NULL
                      AND indent."no_rangka"   IS NOT NULL AND indent."no_rangka" <> \'\'
@@ -92,6 +93,7 @@ class IndentController extends Controller
                 'tgl_antrian'   => $row->Tgl_Antrian,
                 'umur_indent'   => $row->umur_indent,
                 'is_mine'       => $row->is_mine,
+                'is_revisi'     => $row->is_revisi,
                 'status'        => $row->status,
             ];
         }
