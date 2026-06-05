@@ -36,7 +36,7 @@ class IndentController extends Controller
                 CONCAT(indent."Desc_Tipe", \'-\', indent."kode_warna_final") AS "kode_item",
                 w.warna,
                 indent."Tgl_Antrian",
-                DATE_PART(\'day\', NOW() - indent."Tgl_Antrian")::integer AS umur_indent,
+                DATE_PART(\'day\', NOW() - indent."Tgl_Indent")::integer AS umur_indent,
                 CASE WHEN spk.id_flp = ? THEN true ELSE false END AS is_mine,
                 CASE WHEN DATE(indent."created_at") <> DATE(indent."Tgl_Antrian") THEN true ELSE false END AS is_revisi,
                 CASE
