@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ActualSalesController;
 use App\Http\Controllers\Api\MasterController;
 use App\Http\Controllers\Api\ExternalAuthController;
+use App\Http\Controllers\Api\BannerController;
 
 RateLimiter::for('auth', function (Request $request) {
     return Limit::perMinute(5)->by($request->ip());
@@ -62,6 +63,8 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/master/janji-temu', [MasterController::class, 'janjiTemu']);
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update'])->middleware('throttle:write');
+    Route::get('/banners', [BannerController::class, 'index']);
+    Route::get('/banners/detail', [BannerController::class, 'show']);
 });
 
 Route::middleware(['auth:api', 'throttle:write'])->group(function () {
