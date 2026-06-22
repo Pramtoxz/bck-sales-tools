@@ -799,6 +799,12 @@
 									"description": "Judul banner (required)"
 								},
 								{
+									"key": "description",
+									"value": "Diskon spesial untuk pembelian cash",
+									"type": "text",
+									"description": "Deskripsi banner (optional, max 1000 karakter)"
+								},
+								{
 									"key": "image",
 									"type": "file",
 									"src": [],
@@ -862,6 +868,12 @@
 									"value": "Promo Juni 2026 Updated",
 									"type": "text",
 									"description": "Judul banner (optional)"
+								},
+								{
+									"key": "description",
+									"value": "Diskon spesial untuk pembelian cash - updated",
+									"type": "text",
+									"description": "Deskripsi banner (optional, max 1000 karakter)"
 								},
 								{
 									"key": "image",

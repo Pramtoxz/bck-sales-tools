@@ -15,7 +15,7 @@ class BannerController extends Controller
 
         $banners = DB::connection('pgsql_nms')
             ->table('public.banners')
-            ->select('id', 'title', 'image_path', 'start_date', 'end_date', 'sort_order', 'created_at')
+            ->select('id', 'title', 'description', 'image_path', 'start_date', 'end_date', 'sort_order', 'created_at')
             ->where('is_active', true)
             ->where(function ($q) use ($today) {
                 $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
@@ -50,7 +50,7 @@ class BannerController extends Controller
 
         $banner = DB::connection('pgsql_nms')
             ->table('public.banners')
-            ->select('id', 'title', 'image_path', 'start_date', 'end_date', 'sort_order', 'is_active', 'created_at', 'updated_at')
+            ->select('id', 'title', 'description', 'image_path', 'start_date', 'end_date', 'sort_order', 'is_active', 'created_at', 'updated_at')
             ->where('id', $id)
             ->first();
 
@@ -73,6 +73,7 @@ class BannerController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -92,6 +93,7 @@ class BannerController extends Controller
 
         $id = DB::connection('pgsql_nms')->table('public.banners')->insertGetId([
             'title' => $request->title,
+            'description' => $request->description,
             'image_path' => $imagePath,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -120,6 +122,7 @@ class BannerController extends Controller
         $request->validate([
             'id' => 'required|integer',
             'title' => 'sometimes|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,webp|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -141,6 +144,7 @@ class BannerController extends Controller
 
         $data = [];
         if ($request->has('title')) $data['title'] = $request->title;
+        if ($request->has('description')) $data['description'] = $request->description;
         if ($request->has('start_date')) $data['start_date'] = $request->start_date;
         if ($request->has('end_date')) $data['end_date'] = $request->end_date;
         if ($request->has('sort_order')) $data['sort_order'] = $request->sort_order;
