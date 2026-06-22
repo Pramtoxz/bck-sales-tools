@@ -73,6 +73,8 @@ Route::middleware(['auth:api', 'throttle:write'])->group(function () {
     Route::put('/prospek/{id}', [ProspekController::class, 'update'])->where('id', '.*');
     Route::delete('/prospek/{id}', [ProspekController::class, 'destroy'])->where('id', '.*');
     Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
+    Route::post('/banners', [BannerController::class, 'store']);
+    Route::put('/banners', [BannerController::class, 'update']);
 });
 
 Route::middleware(['external.key', 'throttle:auth'])->prefix('external')->group(function () {
