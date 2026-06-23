@@ -101,6 +101,21 @@ Route::post('/internal/daily-notification', function (Request $request) {
     return response()->json(['success' => true, 'message' => 'Daily notification sent']);
 });
 
+Route::post('/internal/test-notification', function (Request $request) {
+    $key = $request->header('X-Internal-Key');
+    if (!$key || !hash_equals(config('app.internal_cron_key', ''), $key)) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    NotificationController::sendToAllUsers(
+        $request->input('title', 'Test Notification'),
+        $request->input('message', 'Ini adalah test push notification dari Sales Tools API.'),
+        'test'
+    );
+
+    return response()->json(['success' => true, 'message' => 'Test notification sent to all devices']);
+});
+
 Route::get('/health', function () {
     return response()->json([
         'status' => 'success',
