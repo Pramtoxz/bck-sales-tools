@@ -21,6 +21,7 @@ class LoginRequest extends FormRequest
             'device_id' => 'required|string|max:255',
             'device_name' => 'nullable|string|max:100',
             'device_type' => 'nullable|string|in:android,ios',
+            'fcm_token' => 'nullable|string|max:500',
         ];
     }
 

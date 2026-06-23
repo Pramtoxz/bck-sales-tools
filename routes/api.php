@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\ActualSalesController;
 use App\Http\Controllers\Api\MasterController;
 use App\Http\Controllers\Api\ExternalAuthController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\NotificationController;
 
 RateLimiter::for('auth', function (Request $request) {
     return Limit::perMinute(5)->by($request->ip());
@@ -65,6 +66,10 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->middleware('throttle:write');
     Route::get('/banners', [BannerController::class, 'index']);
     Route::get('/banners/detail', [BannerController::class, 'show']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 });
 
 Route::middleware(['auth:api', 'throttle:write'])->group(function () {
@@ -79,6 +84,21 @@ Route::middleware(['auth:api', 'throttle:write'])->group(function () {
 
 Route::middleware(['external.key', 'throttle:auth'])->prefix('external')->group(function () {
     Route::post('/auth', [ExternalAuthController::class, 'login']);
+});
+
+Route::post('/internal/daily-notification', function (Request $request) {
+    $key = $request->header('X-Internal-Key');
+    if (!$key || !hash_equals(config('app.internal_cron_key', ''), $key)) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    NotificationController::sendToAllUsers(
+        'Salam Satu Hati!',
+        'Selamat pagi!, Satu Hati Satu Target, Jangan lupa cek target dan prospek hari ini. Semoga harimu menyenangkan!',
+        'daily'
+    );
+
+    return response()->json(['success' => true, 'message' => 'Daily notification sent']);
 });
 
 Route::get('/health', function () {

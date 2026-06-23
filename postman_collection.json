@@ -918,6 +918,228 @@
 			]
 		},
 		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["notifications"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Ambil daftar notifikasi user (paginated, 10 per page)"
+					}
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/unread-count",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "unread-count"]
+						},
+						"description": "Ambil jumlah notifikasi yang belum dibaca"
+					}
+				},
+				{
+					"name": "Mark As Read",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/notifications/mark-read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "mark-read"]
+						},
+						"description": "Tandai satu notifikasi sebagai sudah dibaca"
+					}
+				},
+				{
+					"name": "Mark All As Read",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/mark-all-read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "mark-all-read"]
+						},
+						"description": "Tandai semua notifikasi sebagai sudah dibaca"
+					}
+				}
+			]
+		},
+		{
+			"name": "Internal Cron",
+			"item": [
+				{
+					"name": "Trigger Daily Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Internal-Key",
+								"value": "sales-tools-cron-2026-internal"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/internal/daily-notification",
+							"host": ["{{base_url}}"],
+							"path": ["internal", "daily-notification"]
+						},
+						"description": "Trigger daily notification ke semua user (gunakan X-Internal-Key header)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Notification",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications",
+							"host": ["{{base_url}}"],
+							"path": ["notifications"]
+						},
+						"description": "List notifikasi user (paginated 10, terbaru dulu)"
+					}
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/unread-count",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "unread-count"]
+						},
+						"description": "Jumlah notifikasi yang belum dibaca"
+					}
+				},
+				{
+					"name": "Mark As Read",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/notifications/mark-read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "mark-read"]
+						},
+						"description": "Tandai satu notifikasi sudah dibaca"
+					}
+				},
+				{
+					"name": "Mark All As Read",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/mark-all-read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "mark-all-read"]
+						},
+						"description": "Tandai semua notifikasi sudah dibaca"
+					}
+				},
+				{
+					"name": "Daily Cron Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Internal-Key",
+								"value": "YOUR_INTERNAL_CRON_KEY"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/internal/daily-notification",
+							"host": ["{{base_url}}"],
+							"path": ["internal", "daily-notification"]
+						},
+						"description": "Trigger daily notification (cron job, protected by X-Internal-Key)"
+					}
+				}
+			]
+		},
+		{
 			"name": "Health Check",
 			"request": {
 				"method": "GET",

@@ -1,0 +1,5 @@
+0 7 * * * curl -s -k -X POST --max-time 60 https://127.0.0.1/api/internal/daily-notification -H "Host: salestools.menara-agung.com" -H "X-Internal-Key: 026143ba7e89f761e7d2f83c3bc68dae855925f1b90446ad" >> /tmp/sales-tools-cron.log 2>&1
+
+curl -v -k -X POST --max-time 60 https://127.0.0.1/api/internal/daily-notification \
+  -H "Host: salestools.menara-agung.com" \
+  -H "X-Internal-Key: 026143ba7e89f761e7d2f83c3bc68dae855925f1b90446ad"6ad"6ad"

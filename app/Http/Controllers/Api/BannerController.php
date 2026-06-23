@@ -110,6 +110,13 @@ class BannerController extends Controller
 
         $banner->image_url = url($banner->image_path);
 
+        NotificationController::sendToAllUsers(
+            'Promo Baru!',
+            $request->title,
+            'banner',
+            ['banner_id' => (string) $id]
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Banner berhasil ditambahkan',
