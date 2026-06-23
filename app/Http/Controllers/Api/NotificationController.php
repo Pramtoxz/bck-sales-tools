@@ -92,6 +92,51 @@ class NotificationController extends Controller
         ]);
     }
 
+    public function registerToken(Request $request): JsonResponse
+    {
+        $request->validate([
+            'device_id' => 'nullable|string|max:255',
+            'fcm_token' => 'required|string|max:500',
+        ]);
+
+        $user = $request->user();
+        $flp = $user->flp;
+
+        if (!$flp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terdaftar sebagai FLP',
+            ], 403);
+        }
+
+        $query = FlpDevice::where('id_flp', $flp->id_flp);
+
+        if ($request->device_id) {
+            $query->where('device_id', $request->device_id);
+        } else {
+            $query->orderByDesc('last_active')->limit(1);
+        }
+
+        $device = $query->first();
+
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device tidak ditemukan',
+            ], 404);
+        }
+
+        $device->update([
+            'fcm_token' => $request->fcm_token,
+            'last_active' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FCM token berhasil didaftarkan',
+        ]);
+    }
+
     public static function sendToAllUsers(string $title, string $message, string $type = 'general', array $extraData = []): void
     {
         $firebase = new FirebaseService();

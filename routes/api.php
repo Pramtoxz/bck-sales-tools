@@ -70,6 +70,7 @@ Route::middleware(['auth:api', 'throttle:api'])->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/register-token', [NotificationController::class, 'registerToken']);
 });
 
 Route::middleware(['auth:api', 'throttle:write'])->group(function () {
