@@ -48,6 +48,7 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'device_name' => $request->device_name,
                 'device_type' => $request->device_type,
+                'fcm_token' => $request->fcm_token,
                 'last_active' => now(),
             ]
         );
@@ -180,6 +181,7 @@ class AuthController extends Controller
         $request->validate([
             'device_id'       => 'required|string',
             'biometric_token' => 'required|string',
+            'fcm_token'       => 'nullable|string|max:500',
         ]);
 
         $device = FlpDevice::where('device_id', $request->device_id)
@@ -220,7 +222,10 @@ class AuthController extends Controller
 
         $token = $user->createToken($request->device_id)->plainTextToken;
 
-        $device->update(['last_active' => now()]);
+        $device->update([
+            'fcm_token' => $request->fcm_token ?? $device->fcm_token,
+            'last_active' => now(),
+        ]);
 
         return response()->json([
             'success' => true,
